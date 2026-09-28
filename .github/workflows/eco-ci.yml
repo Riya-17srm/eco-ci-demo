@@ -1,0 +1,44 @@
+name: Eco CI Energy Measurement
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  measure-energy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Start Eco CI measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v5
+        with:
+          task: start-measurement
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: python -m pip install pytest
+
+      - name: Run application
+        run: python app.py
+
+      - name: Run tests
+        run: python -m pytest
+
+      - name: Get Eco CI measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v5
+        with:
+          task: get-measurement
+          label: "Python Application"
+
+      - name: Display Eco CI results
+        uses: green-coding-solutions/eco-ci-energy-estimation@v5
+        with:
+          task: display-results
