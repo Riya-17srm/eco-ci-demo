@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Start Eco CI measurement
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: start-measurement
+        continue-on-error: true
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,8 +37,10 @@ jobs:
         with:
           task: get-measurement
           label: "Python Application"
+        continue-on-error: true
 
       - name: Display Eco CI results
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: display-results
+        continue-on-error: true
