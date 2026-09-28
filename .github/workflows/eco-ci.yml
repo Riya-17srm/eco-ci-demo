@@ -40,21 +40,30 @@ jobs:
         continue-on-error: true
 
       - name: Display Eco CI results
+        id: eco-results
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: display-results
         continue-on-error: true
 
-      - name: Add readable results to Summary
+      - name: Add Eco CI results to Summary
+        env:
+          ECO_DATA: ${{ steps.eco-results.outputs.data-total-json }}
         run: |
-          echo "## 🌱 Eco CI Sustainability Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Result |" >> $GITHUB_STEP_SUMMARY
-          echo "|---|---:|" >> $GITHUB_STEP_SUMMARY
-          echo "| CPU Utilization | 31.05% |" >> $GITHUB_STEP_SUMMARY
-          echo "| Energy Consumption | 17.3361 J |" >> $GITHUB_STEP_SUMMARY
-          echo "| Average Power | 4.27 W |" >> $GITHUB_STEP_SUMMARY
-          echo "| Duration | 4.06 s |" >> $GITHUB_STEP_SUMMARY
-          echo "| CO₂ from Energy | 0.002274 g |" >> $GITHUB_STEP_SUMMARY
-          echo "| Embodied Carbon | 0.001158 g |" >> $GITHUB_STEP_SUMMARY
-          echo "| SCI | 0.003432 gCO₂eq / pipeline run |" >> $GITHUB_STEP_SUMMARY
+          echo "## 🌱 Eco CI Sustainability Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---:|" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "| CPU Utilization | $(echo "$ECO_DATA" | jq -r '.cpu_utilization // "N/A"')% |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Energy Consumption | $(echo "$ECO_DATA" | jq -r '.energy // "N/A"') J |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Average Power | $(echo "$ECO_DATA" | jq -r '.power // "N/A"') W |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Duration | $(echo "$ECO_DATA" | jq -r '.duration // "N/A"') s |" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Raw Eco CI measurement:**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          echo "$ECO_DATA" | jq . >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
